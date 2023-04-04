@@ -1,6 +1,5 @@
 const BASE_URL = 'http://localhost:3001';
 
-
 export const apiFetch = ({ path, method, body }) => {
   return fetch(BASE_URL + path, {
     method,
@@ -11,7 +10,6 @@ export const apiFetch = ({ path, method, body }) => {
     body: body ? JSON.stringify(body) : undefined
   });
 };
-
 
 
 

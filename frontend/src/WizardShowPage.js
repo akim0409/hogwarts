@@ -6,6 +6,13 @@ const WizardShowPage = () => {
   const [wizard, setWizard] = useState(null);
   const [house, setHouse] = useState(null);
   const [friends, setFriends] = useState([]);
+  const [isFriend, setIsFriend] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [nationality, setNationality] = useState('');
+  const [error, setError] = useState(''); 
+
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,6 +26,10 @@ const WizardShowPage = () => {
     setWizard(data.wizard);
     setHouse(data.house);
     setFriends(data.friends);
+    setIsFriend(data.isFriend);
+    setFirstName(data.wizard.firstName);
+    setLastName(data.wizard.lastName);
+    setNationality(data.wizard.nationality);
   };
 
   useEffect(() => {
@@ -52,10 +63,57 @@ const WizardShowPage = () => {
     )
    }); 
 
+   const handleSubmit = async () => {
+    const response = await apiFetch({
+      path: `/wizards/${params.wizardId}`,
+      method: 'PUT',
+      body: { firstName, lastName, nationality }
+    });
+
+    if (response.status === 401) {
+      setError('Cannot update another user');
+    } else {
+      fetchWizardInformations();
+    }
+   }
+
+   const handleAddFriend = async () => {
+    const response = await apiFetch({
+      path: `/wizards/friends/${params.wizardId}`,
+      method: 'POST'
+    });
+    fetchWizardInformations();
+   }
+
   return (
     <div className='h-screen bg-amber-100 flex justify-between'>
+      <div>{error}</div>
+      <button onClick={() => {setEditing(true)}}>update</button>
+      {
+        editing ? <form 
+        onSubmit={
+          (e) => { 
+            e.preventDefault();
+            handleSubmit()
+          }
+        }
+        >
+          <input value={firstName} placeholder='firstname' onChange={(e) => {setFirstName(e.target.value)}}/>
+          <input value={lastName} placeholder='lastName' onChange={(e) => {setLastName(e.target.value)}}/>
+          <input value={nationality} placeholder='lastName' onChange={(e) => {setNationality(e.target.value)}}/>
+          <button>submit</button>
+
+        </form> : null
+      }
       <div className="">
         <div className="font-meta font-semibold text-3xl">{wizard.lastName}, {wizard.firstName}</div>
+        { isFriend ? 
+        <i className="fa-solid fa-heart"></i> 
+        : <button onClick={(e) => {
+          e.preventDefault();
+          handleAddFriend();
+        }}>Add Friend</button>
+        }
         <div className="font-adamina">Nationality: {wizard.nationality}</div>
         <div>
           Friends :
@@ -63,14 +121,11 @@ const WizardShowPage = () => {
             {friendItems}
           </div>
         </div>
-       
       </div>
-
       <div>
         {
           house ?  <img className="w-60"src={houseImgs[house.name]}/> : null
-        }
-        
+        } 
       </div>
     </div>
   )

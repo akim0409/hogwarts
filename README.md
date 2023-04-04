@@ -36,3 +36,8 @@ frontend routes
   
 /wizards/:wizardId
   display wizard, their house, and all their friends
+
+
+  
+
+Middleware folder!
